@@ -1,4 +1,9 @@
+const spdy = require('spdy');
 const express = require('express');
+const fs = require('fs');
+
+const countdown = require('./utils/countdown');
+
 const app = express();
 
 app.use(express.static('public'));
@@ -13,14 +18,19 @@ app.get('/countdown', (req, res) => {
   countdown(res, 100);
 });
 
-const countdown = (res, count) => {
-  const data = {
-    countdown: count,
-    progress: 100 - count,
-  };
-  res.write(`data: ${JSON.stringify(data)} \n\n`);
-  if (count) setTimeout(() => countdown(res, count - 1), 1000);
-  else res.end();
+const options = {
+  key: fs.readFileSync('localhost-privkey.pem'),
+  cert: fs.readFileSync('localhost-cert.pem'),
+  allowHTTP1: true,
 };
 
-app.listen(8080, () => console.log('Server is listening on port 8080'));
+const server = spdy.createServer(options, app);
+
+server.listen(8080, error => {
+  if (error) {
+    console.error(error);
+    return process.exit(1);
+  } else {
+    console.log('Listening on port 8080');
+  }
+});
