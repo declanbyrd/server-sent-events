@@ -7,9 +7,30 @@
   </head>
   <body>
     <h1>Server Sent Events</h1>
-    <h2>State: <span id="state" role="contentinfo" /></h2>
-    <h2>Data: <span id="data" role="contentinfo" /></h2>
-    <progress max="100" value="80"></progress>
+    <h2>State: <span id="state" role="contentinfo">Disconnected</span></h2>
+    <section id="products">
+      <h2>Products</h2>
+      <nav>
+        <ul>
+          <template id="productItem">
+            <li></li>
+          </template>
+        </ul>
+      </nav>
+    </section>
+    <section id="deals" hidden>
+      <h2>Deals</h2>
+      <template id="dealTemplate">
+        <div>
+          <h3>Product Name</h3>
+          <p>Price</p>
+          <p>Number of backers required</p>
+          <p>Current number of backers</p>
+          <progress max="100"></progress>
+          <button>Commit to Purchase</button>
+        </div>
+      </template>
+    </section>
   </body>
   <script src="./index.js"></script>
 </html>

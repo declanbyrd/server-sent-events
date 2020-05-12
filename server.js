@@ -1,22 +1,68 @@
 const spdy = require('spdy');
 const express = require('express');
+const bodyParser = require('body-parser');
 const fs = require('fs');
-
-const countdown = require('./utils/countdown');
+const deals = require('./deals');
 
 const app = express();
 
-app.use(express.static('public'));
+let clients = [];
+let dealsList = [];
 
-app.get('/countdown', (req, res) => {
+const dealHandler = (req, res, next) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
   });
+  dealsList = deals.generateList();
+  res.write(`data: ${JSON.stringify(dealsList)} \n\n`);
+  const newClientId = Date.now();
+  const newClient = {
+    id: newClientId,
+    res,
+  };
+  clients.push(newClient);
+  req.on(
+    'close',
+    () => (clients = clients.filter(client => client.id !== newClientId))
+  );
+};
 
-  countdown(res, 100);
-});
+const updateClients = newData => {
+  clients.forEach(client =>
+    client.res.write(`data: ${JSON.stringify(newData)} \n\n`)
+  );
+};
+
+const updateData = (req, res, next) => {
+  const dealId = req.query.dealId;
+  const updatedList = dealsList.map(deal => {
+    let newBackers = deal.currentBackers + 1;
+    if (newBackers == deal.backersRequired) {
+      newBackers = 'Deal Fulfilled';
+    }
+    const newProgress = (newBackers / deal.backersRequired) * 100;
+    if (deal.id == dealId) {
+      return {
+        ...deal,
+        currentBackers: newBackers,
+        progress: newProgress,
+      };
+    }
+    return deal;
+  });
+  dealsList = [...updatedList];
+  res.json(updatedList);
+  updateClients(updatedList);
+};
+
+app.use(express.static('public'));
+app.use(bodyParser.json());
+
+app.post('/purchase', updateData);
+app.get('/products', (req, res) => res.json(deals.products));
+app.get('/deals', dealHandler);
 
 const options = {
   key: fs.readFileSync('localhost-privkey.pem'),
