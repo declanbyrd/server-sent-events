@@ -57,7 +57,7 @@ const updateData = (req, res, next) => {
   updateClients(updatedList);
 };
 
-app.use(express.static('public'));
+app.use(express.static('static'));
 app.use(bodyParser.json());
 
 app.post('/purchase', updateData);

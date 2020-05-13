@@ -1,6 +1,12 @@
-# server-sent-events-express
+# server-sent-events
 
-HTML5 and node.js (express.js) demo of server-sent-events.
+HTML5 and Node.js demo of server-sent-events for a group buying application.
+
+## Overview
+
+- `server.js` contains an Express application which is provided by the SPDY library for HTTP/2 support.
+- `deals.js` is the in-memory database of deal and product data.
+- The `static` folder contains the front-end of the application.
 
 ## Pre-requisites
 
@@ -24,7 +30,7 @@ npm install
 
 ## Running the app
 
-Once pre-requisites are met and packages installed, the app can be started using
+Once pre-requisites are met and packages installed, the app can be started using:
 
 ```bash
 npm run start
